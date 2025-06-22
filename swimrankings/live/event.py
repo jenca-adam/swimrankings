@@ -1,8 +1,8 @@
 import datetime
-import heapq  # sorting events (overkill?)
 
 from .enums import Stroke, Gender
 from .entry import EntryList
+from .result import ResultList
 from swimrankings.util.sorter import Sorter
 
 
@@ -43,12 +43,14 @@ class Event:
         return [self.meet.age_groups[int(id)] for id in self._age_groups]
 
     def get_entries(self):
-        if self.meet.athletes is None or self.meet.clubs is None:
-            self.meet.fetch()
         response = self.meet.make_request(f"entries/{self.id}.json")
         if response.ok:
             return EntryList.parse(self.meet, self, response.json()["entries"])
-
+    
+    def get_results(self):
+        response = self.meet.make_request(f"results/{self.id}.json")
+        if response.ok:
+            return ResultList.parse(self.meet, self, response.json())
     def fetch(self):
         self.age_groups = self.get_age_groups()
         self.entries = self.get_entries()

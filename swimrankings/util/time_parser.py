@@ -14,14 +14,17 @@ class Time:
     def __init__(self, string):
         match = time_regex.search(string)
         if not match:
-            raise ValueError(f"invalid time string: {string}")
-        groups = match.groups()
-        if (
-            groups[1] is None and groups[0] is not None
-        ):  # if hours are not present the second group is not matched
-            self.mins, self.hours, self.secs = map(to_float, groups)
+            self.invalid = True
+            self.hours, self.mins, self.secs = -1, -1, -1
         else:
-            self.hours, self.mins, self.secs = map(to_float, groups)
+            groups = match.groups()
+            if (
+                groups[1] is None and groups[0] is not None
+            ):  # if hours are not present the second group is not matched
+                self.mins, self.hours, self.secs = map(to_float, groups)
+            else:
+                self.hours, self.mins, self.secs = map(to_float, groups)
+            self.invalid = False
         self.string = string
 
     @property
@@ -29,12 +32,22 @@ class Time:
         return (self.hours, self.mins, self.secs)
 
     def __eq__(self, other):
+        if self.invalid:
+            return False
         return isinstance(other, Time) and other._tup == self._tup
 
     def __gt__(self, other):
+        if self.invalid:
+            return True
+        if other.invalid:
+            return False
         return isinstance(other, Time) and self._tup > other._tup
 
     def __ge__(self, other):
+        if self.invalid:
+            return True
+        if other.invalid:
+            return False
         return isinstance(other, Time) and self._tup >= other._tup
 
     def __repr__(self):
