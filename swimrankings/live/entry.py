@@ -1,5 +1,6 @@
 from .enums import Gender, Course
 from swimrankings.util.sorter import Sorter
+from swimrankings.util.time_parser import Time
 
 
 class Entry:
@@ -61,7 +62,7 @@ class Entry:
             data.get("clubtext"),
             data.get("clubcode"),
             int(data.get("athleteid", -1)),
-            data.get("entrytime"),
+            Time(data.get("entrytime")),
             data["id"],
             data.get("agetext"),
             int(data.get("clubid", -1)),
@@ -69,6 +70,9 @@ class Entry:
             data.get("nametext"),
             int(data.get("place", -1)),
         )
+
+    def __repr__(self):
+        return f"<Entry ({self.name_text}, {self.entry_time.string})>"
 
 
 class EntryList:
@@ -84,10 +88,14 @@ class EntryList:
     @classmethod
     def parse(cls, meet, event, data):
         entries = {}
-        sorter = Sorter(lambda a: a.place)
-        for e in data["entries"]:
-            entry = Entry.parse(e)
+        sorter = Sorter(lambda a: a.entry_time)
+        for e in data:
+            entry = Entry.parse(meet, event, e)
             entries[entry.id] = entry
+
             sorter.feed(entry)
         numbered = sorter.extract()
         return cls(meet, event, entries, numbered)
+
+    def __repr__(self):
+        return f"<EntryList ({len(self.entries)} entries)>"
