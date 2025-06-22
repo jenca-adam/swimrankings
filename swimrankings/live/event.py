@@ -46,11 +46,12 @@ class Event:
         response = self.meet.make_request(f"entries/{self.id}.json")
         if response.ok:
             return EntryList.parse(self.meet, self, response.json()["entries"])
-    
+
     def get_results(self):
         response = self.meet.make_request(f"results/{self.id}.json")
         if response.ok:
             return ResultList.parse(self.meet, self, response.json())
+
     def fetch(self):
         self.age_groups = self.get_age_groups()
         self.entries = self.get_entries()

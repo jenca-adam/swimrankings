@@ -30,7 +30,7 @@ class Result:
         entry_course,
         name_text,
         place,
-        dsq_reason
+        dsq_reason,
     ):
         self.meet = meet
         self.event = event
@@ -87,7 +87,7 @@ class Result:
             Course(int(data.get("entrycourse", 0))),
             data.get("nametext"),
             int(data.get("place", -1)),
-            data.get('commentdsq')
+            data.get("commentdsq"),
         )
 
     def get_athlete(self):
@@ -103,8 +103,10 @@ class Result:
     def fetch(self):
         self.athlete = self.get_athlete()
         self.club = self.get_club()
+
     def __repr__(self):
         return f"<Result ({self.place if self.dsq_reason is None else 'DSQ'}. {self.name_text} {self.swim_time.string})>"
+
 
 class AgeGroupResults:
     def __init__(self, meet, event, age_group_id, results, numbered):
@@ -119,7 +121,7 @@ class AgeGroupResults:
         return self.results[id]
 
     def get_age_group(self):
-        if self.age_group_id==-1:
+        if self.age_group_id == -1:
             return None
         if self.meet.age_groups is None:
             self.meet.fetch()
@@ -127,8 +129,10 @@ class AgeGroupResults:
 
     def fetch(self):
         self.age_group = self.get_age_group()
+
     def __repr__(self):
         return f"<AgeGroupResults ({len(self.results)} results)>"
+
     @classmethod
     def parse(cls, meet, event, data):
         sorter = Sorter(lambda a: a.swim_time)
@@ -138,7 +142,7 @@ class AgeGroupResults:
             results[result.id] = result
             sorter.feed(result)
         numbered = sorter.extract()
-        return cls(meet, event, int(data.get("id",-1)), results, numbered)
+        return cls(meet, event, int(data.get("id", -1)), results, numbered)
 
 
 class ResultList:
@@ -146,21 +150,23 @@ class ResultList:
         self.meet = meet
         self.event = event
         self.age_groups = age_groups
+
     def __getitem__(self, index):
         return self.age_groups[index]
+
     def by_id(self, id):
         for i in self.age_groups:
             if id in i.results:
                 return i.results[id]
         raise KeyError
+
     @classmethod
     def parse(cls, meet, event, data):
         age_groups = []
         for a in data["agegroups"]:
-            age_group_results = AgeGroupResults.parse(meet, event,a)
+            age_group_results = AgeGroupResults.parse(meet, event, a)
             age_groups.append(age_group_results)
         return cls(meet, event, age_groups)
+
     def __repr__(self):
         return f"<ResultList ({len(self.age_groups)} age groups)>"
-
-
