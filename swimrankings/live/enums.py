@@ -50,3 +50,15 @@ class Status(enum.IntEnum):
         if value == 2:
             return cls.PLANNED
         return cls.UNKNOWN
+
+
+class ResultStatus(enum.IntEnum):
+    OK = 1
+    DSQ = 2
+    DNS = 3
+    DNF = 4
+    UNKNOWN = 0
+
+    @classmethod
+    def _missing(cls, value):
+        return cls.UNKNOWN

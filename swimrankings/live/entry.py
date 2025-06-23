@@ -20,6 +20,7 @@ class Entry:
         course,
         name_text,
         place,
+        lane,
     ):
         self.meet = meet
         self.event = event
@@ -35,6 +36,7 @@ class Entry:
         self.course = course
         self.name_text = name_text
         self.place = place
+        self.lane = lane
         self.club = None
         self.athlete = None
 
@@ -69,6 +71,7 @@ class Entry:
             Course(int(data.get("entrycourse", 0))),
             data.get("nametext"),
             int(data.get("place", -1)),
+            int(data.get("lane", -1)),
         )
 
     def __repr__(self):

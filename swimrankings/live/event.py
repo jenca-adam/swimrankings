@@ -3,6 +3,7 @@ import datetime
 from .enums import Stroke, Gender
 from .entry import EntryList
 from .result import ResultList
+from .heat import HeatList
 from swimrankings.util.sorter import Sorter
 
 
@@ -36,6 +37,8 @@ class Event:
         self.round = round
         self.age_groups = None
         self.entries = None
+        self.results = None
+        self.heats = None
 
     def get_age_groups(self):
         if self.meet.age_groups is None:
@@ -47,6 +50,11 @@ class Event:
         if response.ok:
             return EntryList.parse(self.meet, self, response.json()["entries"])
 
+    def get_heats(self):
+        response = self.meet.make_request(f"heats/{self.id}.json")
+        if response.ok:
+            return HeatList.parse(self.meet, self, response.json())
+
     def get_results(self):
         response = self.meet.make_request(f"results/{self.id}.json")
         if response.ok:
@@ -55,6 +63,8 @@ class Event:
     def fetch(self):
         self.age_groups = self.get_age_groups()
         self.entries = self.get_entries()
+        self.results = self.get_results()
+        self.heats = self.get_heats()
 
     @classmethod
     def parse(cls, meet, data):
@@ -68,8 +78,8 @@ class Event:
             int(data["id"]),
             data.get("agegroups", []),
             int(data.get("number", 0)),
-            datetime.time.fromisoformat(data.get("time", "00:00")),
-            datetime.date.fromisoformat(data.get("date", "1970-1-1")),
+            datetime.time.fromisoformat(data.get("time") or "00:00"),
+            datetime.date.fromisoformat(data.get("date") or "1970-1-1"),
             int(data.get("round", 0)),
         )
 

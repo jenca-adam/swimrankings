@@ -1,6 +1,8 @@
 import re
+from dataclasses import dataclass
 
 time_regex = re.compile(r"(\d+:)?(\d{1,2}:)?(\d{2}\.\d{2})")  # H:MM:SS.SS
+split_regex = re.compile(r"(\S+)\s*\(\s*(\S+)\s*\)")
 
 
 def to_float(num):
@@ -52,3 +54,21 @@ class Time:
 
     def __repr__(self):
         return f"Time(hours={self.hours}, mins={self.mins}, secs={self.secs})"
+
+
+@dataclass
+class Split:
+    total: Time
+    last: Time
+
+
+class Splits:
+    def __init__(self, splits):
+        self.splits = {
+            k: (
+                Split(*(Time(i.strip()) for i in split_regex.search(v).groups()))
+                if split_regex.match(v)
+                else None
+            )
+            for k, v in splits.items()
+        }

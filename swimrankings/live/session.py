@@ -38,9 +38,9 @@ class Session:
             int(data["id"]),
             Course(int(data.get("course", 0))),
             int(data.get("number", 0)),
-            datetime.time.fromisoformat(data.get("time", "00:00")),
+            datetime.time.fromisoformat(data.get("time") or "00:00"),
             data.get("name"),
-            datetime.date.fromisoformat(data.get("date", "1970-01-01")),
+            datetime.date.fromisoformat(data.get("date") or "1970-01-01"),
         )
 
     def __repr__(self):

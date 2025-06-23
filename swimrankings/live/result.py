@@ -1,6 +1,6 @@
-from .enums import Gender, Course
+from .enums import Gender, Course, ResultStatus
 from swimrankings.util.sorter import Sorter
-from swimrankings.util.time_parser import Time
+from swimrankings.util.time_parser import Time, Splits
 
 
 class Result:
@@ -31,6 +31,7 @@ class Result:
         name_text,
         place,
         dsq_reason,
+        status,
     ):
         self.meet = meet
         self.event = event
@@ -57,6 +58,7 @@ class Result:
         self.name_text = name_text
         self.place = place
         self.dsq_reason = dsq_reason
+        self.status = status
         self.athlete = None
         self.club = None
 
@@ -73,7 +75,7 @@ class Result:
             data.get("clubname"),
             data.get("clubcode"),
             int(data.get("athleteid", -1)),
-            data.get("splits"),
+            Splits(data.get("splits", {})),
             Time(data.get("entrytime", "00.00")),
             int(data.get("points", 0)),
             int(data["id"]),
@@ -83,11 +85,12 @@ class Result:
             int(data.get("lane", -1)),
             Time(data.get("swimtime", "00.00")),
             data.get("info"),
-            data.get("clubid"),
+            int(data.get("clubid", -1)),
             Course(int(data.get("entrycourse", 0))),
             data.get("nametext"),
             int(data.get("place", -1)),
             data.get("commentdsq"),
+            ResultStatus(int(data.get("status", 1))),
         )
 
     def get_athlete(self):
@@ -105,7 +108,7 @@ class Result:
         self.club = self.get_club()
 
     def __repr__(self):
-        return f"<Result ({self.place if self.dsq_reason is None else 'DSQ'}. {self.name_text} {self.swim_time.string})>"
+        return f"<Result ({self.place if self.place!=-1 else self.status._name_}. {self.name_text} {self.swim_time.string})>"
 
 
 class AgeGroupResults:
